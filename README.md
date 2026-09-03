@@ -1,55 +1,57 @@
-# Chef's Menu Manager
+# Menu Management by Chef
 
-A React Native (Expo) mobile application built for Christoffel's restaurant,
-allowing the chef to manage the menu from a mobile device instead of paper.
+React Native (Expo) mobile application created for Christoffel's restaurant,
+which lets the chef manage the menu through a mobile device rather than a piece of paper.
 
-This is the **Final PoE** submission. It builds on the Part 2 app (add and
-view menu items) and adds full menu management, search, filtering, menu
-statistics and a round of refactoring.
-
+This is the **Final Project of Expertise** submission. The submission is based on the app from part 2 (menu item adding & viewing) but includes more advanced features.
 ## Features
 
-### Menu list (Home)
+### Menu List (Home)
 
-- View the chef's full menu in a scrollable, colour-tagged list
-- Menu summary in the list header: total number of dishes and their
+- Look through all the menu items of the chef in an easily scrollable,
+  color tagged list
+- Menu details in the header of the list: total number of menu items and
   average price
-- **Search** menu items by name, in real time, with a clear (x) button
-- **Filter** menu items by course (All / Starter / Main Course / Dessert)
-- When a search or filter is active the header shows "N of M shown"
-- Two distinct empty states: "no menu items yet" (menu is empty) and
-  "no dishes match" (search/filter matched nothing)
-- A floating "+" button to add a new dish
-- A statistics button in the header
+- **Search** the menu items by name in real-time, and there will be (x) to
+  close search
+- **Filter** menu items by their course (All / Starter / Main Course /
+  Dessert)
+- If you search or filter menu items, the header says "N of M shown"
+- Two different empty states: “no menu items yet” (if the menu is empty) or
+  “no dishes match” (if the search/filter returned no results)
+- Floating "+" button for adding menu items
+- Statistics button in the header
 
-### Add / Edit / Delete a menu item
+### Adding / Editing / Deleting a Menu Item
 
-- Add a new dish: Dish Name, Description, Course, Price
-- Tap any dish in the list to open it for editing (form pre-filled)
-- Save Changes updates the dish; the list, search results and
-  statistics all update immediately
-- Delete a dish, with a confirmation dialog first
-- Validation on every field with inline error messages, and a success
-  message after add / update
-- Add and Edit share one `MenuItemForm` component, so the two screens
-  stay identical and only need to be maintained once
+- Adding a new menu item: Menu item name, description, course, price
+- Selecting any menu item from the list will make it editable 
+  (the form will be pre-filled)
+- Saving changes will edit the menu item; the list, search results,
+  and stats will update automatically
+- Deleting a menu item with a confirmation dialogue before deletion
+- Validation on every input with error messages displayed next to
+  the inputs and success message after adding/editing
+- Both Adding and Editing use the same `MenuItemForm` component
+  (identical screens)
 
-### Menu statistics
+### Statistics for menu
 
-- Total number of dishes and overall average price
-- Per-course breakdown: how many dishes each course has and its
-  average price, colour-matched to the course tags used in the list
-- Its own empty state when the menu has no dishes yet
+- Count of all dishes and average cost per dish
+- Course-wise: count of dishes in each course and average cost per dish,
+  matched in color with the course labels used in the list
+- Empty state of its own, when the menu doesn’t contain any dish
 
 ### Throughout
 
-- Consistent layout, spacing and colour system across all six screens
-  (shared design tokens in `src/theme/theme.js`)
-- Safe-area aware layout (headers and the floating button respect
-  notches and home indicators on real devices)
-- Native icons (via `@expo/vector-icons`) instead of text characters
-- Keyboard-aware forms: "next" moves focus field to field and the form
-  scrolls correctly when the keyboard is open
+- Uniform layout, spacing, and color palette on all six pages
+  (reusable theme tokens defined in `src/theme/theme.js`)
+- Layout takes into account safe area (header and floating button
+  layout are compatible with device notches and home indicator bars)
+- Icons native to the device rather than character text (using
+  `@expo/vector-icons`)
+- Keyboard-aware forms (keyboard navigation between fields
+  using "next" and proper scrolling when keyboard is shown)
 
 ## Tech stack
 
@@ -59,37 +61,31 @@ statistics and a round of refactoring.
 ## Project structure
 
 ```
-index.js                       Expo entry point (registerRootComponent)
-App.js                         Sets up navigation; owns the menu via useMenuItems
+index.js                      
+App.js                         
 src/
-  theme/theme.js               Shared colours, spacing, radii and course-tag colours
+  theme/theme.js              
   hooks/
-    useMenuItems.js            Single source of truth for the menu (add/update/delete)
+    useMenuItems.js            
   utils/
-    menuStats.js               computeMenuStats() and formatPrice() helpers
+    menuStats.js               
   components/
-    ScreenHeader.js            Reusable header bar (title, subtitle, back, right action)
-    CourseSelector.js          Chip-style course picker used by the form
-    CourseFilterBar.js         "All + course" chips used to filter the list
-    SearchBar.js               Search-by-name input with a clear button
-    MenuItemForm.js            Shared Dish Name / Description / Course / Price form
-    MenuItemCard.js            One tappable menu item in the list
-    EmptyState.js              Configurable icon + message for empty / no-results
+    ScreenHeader.js            
+    CourseSelector.js          
+    CourseFilterBar.js        
+    SearchBar.js              
+    MenuItemForm.js           
+    MenuItemCard.js         
+    EmptyState.js              
   screens/
-    WelcomeScreen.js           Landing screen (entry point of the app)
-    HomeScreen.js              Menu list: search, filter, summary, tap to edit
-    AddMenuItemScreen.js       Add a dish (wraps MenuItemForm)
-    EditMenuItemScreen.js      Edit or delete a dish (wraps MenuItemForm)
-    MenuStatisticsScreen.js    Totals and per-course averages
+    WelcomeScreen.js           
+    HomeScreen.js              
+    AddMenuItemScreen.js     
+    EditMenuItemScreen.js      
+    MenuStatisticsScreen.js    
 ```
 
-## Application flow
 
-```
-Welcome ──"View Menu"──▶ Home ──"+"──────────▶ Add Menu Item
-        └─"Add a Dish"──▶ Add   ──tap a dish──▶ Edit Menu Item ──Delete──▶ (confirm) ─▶ Home
-                                └─stats icon──▶ Menu Statistics
-```
 
 ## Running the project
 
@@ -101,19 +97,12 @@ Welcome ──"View Menu"──▶ Home ──"+"──────────�
    ```
    npx expo start
    ```
-3. Scan the QR code with **Expo Go** on your phone (Android/iOS), or press
+3. Scan the QR code with Expo Go on your phone (Android/iOS), or press
    `a` for an Android emulator / `i` for an iOS simulator. If the phone
-   cannot reach the dev server on the local network, use
-   `npx expo start --tunnel`.
+   cannot reach the dev server on the local network
+ 
 
-## Validation rules
 
-| Field       | Rule                                                     |
-|-------------|----------------------------------------------------------|
-| Dish Name   | Required                                                 |
-| Description | Required                                                 |
-| Course      | Must select one of Starter / Main Course / Dessert       |
-| Price       | Required, a valid number, greater than zero (e.g. 145.00)|
 
 ---
 
