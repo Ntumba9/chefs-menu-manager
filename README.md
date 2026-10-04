@@ -1,57 +1,88 @@
-# Menu Management by Chef
+# Chef's Menu Manager
 
 React Native (Expo) mobile application created for Christoffel's restaurant,
-which lets the chef manage the menu through a mobile device rather than a piece of paper.
+which lets the chef manage the menu on a mobile device instead of on paper.
 
-This is the **Final Project of Expertise** submission. The submission is based on the app from part 2 (menu item adding & viewing) but includes more advanced features.
+This is the **Final Portfolio of Evidence (PoE)** submission. It builds on
+the Part 2 app (adding and viewing menu items) and adds menu management,
+search and filtering, menu statistics, and a round of refactoring and UX
+improvements.
+
 ## Features
 
-### Menu List (Home)
+### Welcome screen
 
-- Look through all the menu items of the chef in an easily scrollable,
-  color tagged list
-- Menu details in the header of the list: total number of menu items and
-  average price
-- **Search** the menu items by name in real-time, and there will be (x) to
-  close search
-- **Filter** menu items by their course (All / Starter / Main Course /
-  Dessert)
-- If you search or filter menu items, the header says "N of M shown"
-- Two different empty states: “no menu items yet” (if the menu is empty) or
-  “no dishes match” (if the search/filter returned no results)
-- Floating "+" button for adding menu items
-- Statistics button in the header
+- Landing page that introduces the app, with **View Menu** and **Add a
+  Dish** buttons.
 
-### Adding / Editing / Deleting a Menu Item
+### Menu list (Home)
 
-- Adding a new menu item: Menu item name, description, course, price
-- Selecting any menu item from the list will make it editable 
-  (the form will be pre-filled)
-- Saving changes will edit the menu item; the list, search results,
-  and stats will update automatically
-- Deleting a menu item with a confirmation dialogue before deletion
-- Validation on every input with error messages displayed next to
-  the inputs and success message after adding/editing
-- Both Adding and Editing use the same `MenuItemForm` component
-  (identical screens)
+- Scrollable list of every dish, with course labels in colour.
+- The list header shows the total number of dishes and the average
+  price, or "N of M shown" while a search or filter is active.
+- **Search** by dish name. Results update live as you type, the search
+  ignores upper/lower case, and the (x) button clears it.
+- **Filter** by course (All / Starter / Main Course / Dessert). Each chip
+  shows how many dishes it holds, e.g. "Starter (2)". Search and filter
+  work together.
+- If nothing matches, the message says what was searched for, e.g.
+  _No dishes named "soup" in Dessert_. A **Clear search & filters**
+  button resets everything in one tap.
+- Separate empty state when the menu has no dishes yet.
+- A hint line, "Tap a dish to edit or delete it.", tells the chef what
+  the cards do.
+- Floating **+** button to add a dish, and a statistics button in the
+  header.
 
-### Statistics for menu
+### Add / Edit / Delete a menu item
 
-- Count of all dishes and average cost per dish
-- Course-wise: count of dishes in each course and average cost per dish,
-  matched in color with the course labels used in the list
-- Empty state of its own, when the menu doesn’t contain any dish
+- **Add**: dish name, description, course and price.
+- **Edit**: tapping a dish opens it with the form already filled in.
+  "Save Changes" updates the dish, and the list, search results and
+  statistics update straight away.
+- **Delete**: the Edit screen has a "Delete this menu item" button. It
+  asks for confirmation first and shows a message once the dish is
+  removed.
+- Success messages after every add, edit and delete.
+- Validation, with an error shown under each field:
+  - every field is required
+  - the name must be 2–50 characters and **must not duplicate** an
+    existing dish (case-insensitive)
+  - the description is limited to 200 characters, with a live counter
+  - the price must be a number above 0 and no more than R10 000, with at
+    most 2 decimal places. **"145,50" (comma) and "R145" are accepted.**
+- A field's error message disappears as soon as the chef starts fixing
+  it.
+- Saving an edit with nothing changed shows "No changes to save" instead
+  of a misleading success message.
+- Add and Edit use the same `MenuItemForm`, so the two screens look and
+  behave the same.
+
+### Menu statistics
+
+- Total number of dishes and average price of all dishes.
+- For each course: number of dishes, average price, and a bar showing
+  that course's percentage of the menu. Colours match the course labels
+  in the list.
+- Price range: the most expensive and least expensive dishes.
+- Its own empty state, with an **Add a dish** button, when the menu is
+  empty.
 
 ### Throughout
 
-- Uniform layout, spacing, and color palette on all six pages
-  (reusable theme tokens defined in `src/theme/theme.js`)
-- Layout takes into account safe area (header and floating button
-  layout are compatible with device notches and home indicator bars)
-- Icons native to the device rather than character text (using
-  `@expo/vector-icons`)
-- Keyboard-aware forms (keyboard navigation between fields
-  using "next" and proper scrolling when keyboard is shown)
+- The same layout, spacing and colours on all five screens, using shared
+  theme tokens from `src/theme/theme.js` (no colour values hard-coded in
+  screens).
+- Shared components for buttons, chips, course tags, headers and empty
+  states, so every screen looks the same.
+- Safe-area aware: the header and floating button stay clear of notches
+  and the home indicator.
+- Device-native icons (`@expo/vector-icons`).
+- Keyboard-friendly forms: "next" moves between fields, "done" on the
+  price field submits, and the screen scrolls clear of the keyboard.
+- Accessibility labels on every button and input.
+- Messages and confirmations also work in the web build (React Native's
+  `Alert` does nothing on web).
 
 ## Tech stack
 
@@ -61,31 +92,36 @@ This is the **Final Project of Expertise** submission. The submission is based o
 ## Project structure
 
 ```
-index.js                      
-App.js                         
+index.js                     Entry point (registerRootComponent)
+App.js                       Navigation + shared menu state
 src/
-  theme/theme.js              
+  theme/theme.js             Colours, spacing, radii, course list, restaurant name
   hooks/
-    useMenuItems.js            
+    useMenuItems.js          Menu state: add / update / delete / find by id
   utils/
-    menuStats.js               
+    menuStats.js             Statistics maths + price formatting
+    menuFilters.js           Search + course filter logic, chip counts
+    menuValidation.js        Form validation rules + price normalising
+    feedback.js              Success / error / confirm messages (mobile + web)
   components/
-    ScreenHeader.js            
-    CourseSelector.js          
-    CourseFilterBar.js        
-    SearchBar.js              
-    MenuItemForm.js           
-    MenuItemCard.js         
-    EmptyState.js              
+    AppButton.js             The app's one button (primary/secondary/danger/text)
+    Chip.js                  Tappable pill used by the course picker and filter
+    CourseTag.js             Colour-coded course label
+    CourseSelector.js        Course picker on the form
+    CourseFilterBar.js       Course filter on Home (with counts)
+    SearchBar.js             Search box with clear button
+    MenuItemForm.js          Shared Add/Edit form with validation
+    MenuItemCard.js          One dish in the list
+    EmptyState.js            Icon + message + optional action
+    ScreenHeader.js          Header bar with back / right action
+    FormScreen.js            Shared layout for the Add and Edit screens
   screens/
-    WelcomeScreen.js           
-    HomeScreen.js              
-    AddMenuItemScreen.js     
-    EditMenuItemScreen.js      
-    MenuStatisticsScreen.js    
+    WelcomeScreen.js
+    HomeScreen.js
+    AddMenuItemScreen.js
+    EditMenuItemScreen.js
+    MenuStatisticsScreen.js
 ```
-
-
 
 ## Running the project
 
@@ -99,10 +135,21 @@ src/
    ```
 3. Scan the QR code with Expo Go on your phone (Android/iOS), or press
    `a` for an Android emulator / `i` for an iOS simulator. If the phone
-   cannot reach the dev server on the local network
- 
+   cannot reach the dev server on the local network, start it with
+   `npx expo start --tunnel` instead.
 
+### Running in a web browser (no phone needed)
 
+```
+npx expo start --web
+```
+
+The app opens in your browser at `http://localhost:8081`. For a phone-like
+view, open the browser's developer tools and turn on device / mobile view
+(F12, then Ctrl+Shift+M in Chrome or Edge).
+
+Menu items are kept in memory while the app is running, so the menu
+starts empty each time the app is opened.
 
 ---
 
@@ -110,45 +157,107 @@ src/
 
 ## New features
 
-- **Edit menu items.** Tapping a dish opens a new `EditMenuItemScreen`
-  pre-filled with its details; "Save Changes" calls `updateMenuItem`.
+- **Edit menu items.** Tapping a dish opens the new `EditMenuItemScreen`
+  with its details already filled in. "Save Changes" calls
+  `updateMenuItem`.
 - **Delete menu items.** The Edit screen has a "Delete this menu item"
-  button that asks for confirmation before removing the dish.
-- **Search by name.** New `SearchBar` component on Home filters the list
-  live as the chef types; case-insensitive; clear (x) button.
+  button. It asks for confirmation, then shows a success message after
+  removing the dish.
+- **Search by name.** New `SearchBar` component on Home. It filters the
+  list live as the chef types, ignores upper/lower case, and has a clear
+  (x) button.
 - **Filter by course.** New `CourseFilterBar` component (All / Starter /
-  Main Course / Dessert). Search and filter apply together.
-- **Menu statistics.** New `MenuStatisticsScreen` reachable from a header
-  button: total dishes, overall average price, and per-course count and
-  average price.
+  Main Course / Dessert), with a count on each chip. Search and filter
+  work together.
+- **Clear search & filters.** The "No dishes match" state explains what
+  was searched for and offers a one-tap reset.
+- **Menu statistics.** New `MenuStatisticsScreen`, opened from a header
+  button. It shows total dishes, overall average price, per-course count
+  and average price, each course's share of the menu as a bar, and the
+  most and least expensive dishes.
 - **Welcome screen.** New `WelcomeScreen` landing page ("View Menu" /
-  "Add a Dish") set as the initial route.
+  "Add a Dish"), set as the first screen.
 - **Menu summary on Home.** The list header shows the total dish count
   and average price, and switches to "N of M shown" while filtering.
-- **Second empty state.** `EmptyState` is now configurable so it can say
-  either "No menu items yet" or "No dishes match".
+- **Better empty states.** `EmptyState` now takes options, so it can
+  say "No menu items yet", "No dishes match" or "No statistics yet", and
+  can show an action button.
+
+## Validation and user feedback
+
+- Duplicate dish names are rejected (case-insensitive; when editing, a
+  dish does not clash with its own name).
+- Name must be 2–50 characters; description is limited to 200
+  characters with a live counter.
+- Price must be greater than zero and at most R10 000. A comma decimal
+  ("145,50") and a leading "R" are now accepted. Before, a phone keyboard
+  set to South African number format could not enter a valid price.
+- Each field's error message clears as soon as the chef edits that
+  field.
+- A "Please check the form" message appears when saving with errors, and
+  a "No changes to save" message when saving an unchanged edit.
+- Success messages after add, edit **and delete** (before, delete gave
+  no feedback).
+- Messages and confirmations go through `utils/feedback.js`, which falls
+  back to browser dialogs on web. Before, the Add/Edit screens never
+  returned to the menu on web because `Alert` callbacks do not fire
+  there.
 
 ## Refactoring
 
-- **`useMenuItems` hook.** Menu state and the add / update / delete
-  logic moved out of `App.js` into `src/hooks/useMenuItems.js`, so every
-  screen changes the menu through one place and all views stay in sync.
-- **`MenuItemForm` component.** The dish form (fields + validation) was
-  extracted from `AddMenuItemScreen` into a shared component; `Add` and
-  `Edit` are now thin wrappers around it.
-- **`menuStats` util.** Statistics maths and price formatting moved to
-  `src/utils/menuStats.js` (`computeMenuStats`, `formatPrice`) and reused
-  by Home, the card and the statistics screen instead of being repeated.
+- **`useMenuItems` hook.** Menu state and the add / update / delete /
+  find-by-id logic moved out of `App.js` into `src/hooks/useMenuItems.js`.
+  Every screen changes the menu through this one place, so all views stay
+  in sync.
+- **`MenuItemForm` component.** The dish form was moved out of
+  `AddMenuItemScreen` into a shared component. Its state is now a single
+  `values` object, with small `FieldLabel` / `FieldError` helpers.
+- **`menuValidation` util.** Validation rules moved out of the form into
+  plain functions (`validateMenuItem`, `normalisePrice`), with the limits
+  stored as named constants.
+- **`menuFilters` util.** Search and course filtering moved out of
+  `HomeScreen` into `filterMenuItems` and `countByCourse`.
+- **`menuStats` util.** Statistics maths and price formatting
+  (`computeMenuStats`, `formatPrice`) now live in one place and are reused
+  by Home, the card and the statistics screen. Repeated averaging code was
+  merged into a single `averagePriceOf` helper.
+- **`feedback` util.** Every `Alert.alert` call was replaced by
+  `showMessage` / `confirmAction`, so messages look and behave the same
+  everywhere.
+- **New reusable components:**
+  - `AppButton` replaces five hand-styled buttons (form save/cancel,
+    delete, Welcome screen buttons).
+  - `Chip` replaces two copies of identical chip styles in
+    `CourseSelector` and `CourseFilterBar`.
+  - `CourseTag` replaces copies of the course label in `MenuItemCard`
+    and `MenuStatisticsScreen`.
+  - `FormScreen` replaces the KeyboardAvoidingView + header + ScrollView
+    setup that was repeated in the Add and Edit screens. Those screens
+    are now short wrappers.
+- **Edit screen looks dishes up by id.** Home passes only `itemId`, and
+  the Edit screen reads the current dish from shared state. Before, it
+  received a copy of the dish that could go out of date. If the dish no
+  longer exists, the screen shows a friendly "Dish not found" message
+  instead of crashing.
 - **`ScreenHeader`** gained an optional `rightAction` prop for
-  screen-level buttons (used for the statistics button), replacing what
-  would have been a one-off header on Home.
-- **Unique ids.** New items now get a timestamp + random-suffix id
-  instead of `Date.now()` alone, which could collide.
-- **Tighter validation.** Price must now be greater than zero, not just
-  numeric.
+  screen-level buttons (used for the statistics button).
+- **Theme tokens.** Hard-coded colours on the Welcome screen and header
+  (`#BFD4C8`, `#D8E4DC`, `#3C5B4D`) moved into `theme.js` as
+  `onPrimaryMuted`, `onPrimarySoft` and `onPrimaryBorder`. The restaurant
+  name is now one `RESTAURANT_NAME` constant instead of being repeated in
+  three screens.
+- **Unique ids.** New items get a timestamp plus a random suffix as
+  their id, instead of `Date.now()` alone, which could collide.
 - **Entry point.** Switched from the deprecated `expo/AppEntry.js` to a
-  project `index.js` with `registerRootComponent` (Expo SDK 54 default),
-  and removed an invalid `expo-status-bar` entry from `app.json` plugins.
-- **Naming and comments.** Consistent handler names (`handleAdd`,
-  `handleUpdate`, `handleDelete`), and every file has a short comment
-  explaining why it exists.
+  project `index.js` with `registerRootComponent` (the Expo SDK 54
+  default), and removed an invalid `expo-status-bar` entry from the
+  `app.json` plugins.
+- **Dependencies.** Added the missing `expo-font` peer dependency
+  required by `@expo/vector-icons` (SDK 54 version). `npx expo-doctor`
+  now passes all checks.
+- **Web support.** Added `react-dom` and `react-native-web` so the app
+  also runs in a browser with `npx expo start --web`. Messages and
+  confirmations use browser dialogs there (see `utils/feedback.js`).
+- **Naming and comments.** Handler names are consistent (`handleAdd`,
+  `handleUpdate`, `handleDelete`, `clearSearchAndFilters`), and every
+  file starts with a short comment explaining why it exists.

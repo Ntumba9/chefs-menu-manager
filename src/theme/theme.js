@@ -18,6 +18,13 @@ export const colors = {
   successBg: '#E7F6ED',
   white: '#FFFFFF',
 
+  // Text and outlines that sit on the dark green primary background
+  // (headers and the Welcome screen). Kept here rather than hard-coded
+  // in each screen so they change together.
+  onPrimaryMuted: '#BFD4C8',
+  onPrimarySoft: '#D8E4DC',
+  onPrimaryBorder: '#3C5B4D',
+
   // Colour-coded course tags (kept in sync with the Part 1 wireframes)
   starterBg: '#E3F1F0',
   starterText: '#1E6E6C',
@@ -44,8 +51,12 @@ export const radius = {
 
 export const courseOptions = ['Starter', 'Main Course', 'Dessert'];
 
-// Maps a course value to its tag colours so every screen (list, add,
-// and later edit/filter) uses the same mapping instead of repeating
+// Shown under the title on the Home and Statistics headers and on the
+// Welcome screen, so the name only has to be changed in one place.
+export const RESTAURANT_NAME = "Christoffel's Kitchen";
+
+// Maps a course value to its tag colours so every screen (list,
+// statistics, filter) uses the same mapping instead of repeating
 // if/else chains everywhere.
 export function getCourseColors(course) {
   switch (course) {

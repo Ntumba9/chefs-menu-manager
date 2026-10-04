@@ -19,7 +19,7 @@ export default function App() {
   // reads and changes it through this one hook. That is what keeps the
   // list, the search results and the statistics all in step whenever a
   // dish is added, edited or deleted.
-  const { menuItems, addMenuItem, updateMenuItem, deleteMenuItem } =
+  const { menuItems, addMenuItem, updateMenuItem, deleteMenuItem, getMenuItemById } =
     useMenuItems();
 
   return (
@@ -38,7 +38,11 @@ export default function App() {
 
           <Stack.Screen name="AddMenuItem">
             {(props) => (
-              <AddMenuItemScreen {...props} addMenuItem={addMenuItem} />
+              <AddMenuItemScreen
+                {...props}
+                menuItems={menuItems}
+                addMenuItem={addMenuItem}
+              />
             )}
           </Stack.Screen>
 
@@ -46,6 +50,8 @@ export default function App() {
             {(props) => (
               <EditMenuItemScreen
                 {...props}
+                menuItems={menuItems}
+                getMenuItemById={getMenuItemById}
                 updateMenuItem={updateMenuItem}
                 deleteMenuItem={deleteMenuItem}
               />

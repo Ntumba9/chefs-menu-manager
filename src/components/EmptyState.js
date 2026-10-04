@@ -1,17 +1,23 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AppButton from './AppButton';
 import { colors, spacing } from '../theme/theme';
 
-// A centred icon + message used whenever the menu list has nothing to
-// show. It takes props so the same component can explain two different
-// situations (Final PoE - "appropriate empty-state messaging"):
-//   - the menu is genuinely empty, or
-//   - a search / filter matched no dishes.
+// A centred icon + message used whenever a screen has nothing to show.
+// It takes props so the same component can explain different situations
+// (Final PoE - "appropriate empty-state messaging"):
+//   - the menu is genuinely empty,
+//   - a search / filter matched no dishes, or
+//   - there are no statistics yet.
+// An optional action button gives the chef a way out (e.g. "Clear
+// search & filters") instead of a dead end.
 export default function EmptyState({
   icon = 'restaurant-outline',
   title = 'No menu items yet',
   message = 'Tap the + button below to add your first dish to the menu.',
+  actionLabel,
+  onAction,
 }) {
   return (
     <View style={styles.container}>
@@ -20,6 +26,9 @@ export default function EmptyState({
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{message}</Text>
+      {actionLabel && onAction ? (
+        <AppButton title={actionLabel} onPress={onAction} variant="text" style={styles.action} />
+      ) : null}
     </View>
   );
 }
@@ -53,5 +62,8 @@ const styles = StyleSheet.create({
     color: colors.textGrey,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  action: {
+    marginTop: spacing.sm,
   },
 });

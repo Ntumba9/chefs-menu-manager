@@ -2,22 +2,29 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import ScreenHeader from '../components/ScreenHeader';
 import EmptyState from '../components/EmptyState';
-import { colors, spacing, radius, getCourseColors } from '../theme/theme';
+import CourseTag from '../components/CourseTag';
+import { colors, spacing, radius, getCourseColors, RESTAURANT_NAME } from '../theme/theme';
 import { computeMenuStats, formatPrice } from '../utils/menuStats';
 
 // Shows a summary of the whole menu (Final PoE - "Display Menu
-// Statistics"): how many dishes there are in total, and for each course
-// how many dishes it has and what they average in price. The per-course
-// rows use the same tag colours as the menu list so the two screens
-// read as one system.
+// Statistics"):
+//   - total number of dishes and the average price of all dishes,
+//   - the number of dishes (and their average price) in each course,
+//     with a bar showing each course's share of the menu,
+//   - the most and least expensive dishes, for a sense of price range.
+// The per-course rows use the same tag colours as the menu list so the
+// two screens read as one system. Because the numbers are worked out
+// from the shared menu state every time, they are always up to date
+// after an add, edit or delete.
 export default function MenuStatisticsScreen({ navigation, menuItems }) {
-  const { totalItems, averagePrice, byCourse } = computeMenuStats(menuItems);
+  const { totalItems, averagePrice, byCourse, cheapestItem, mostExpensiveItem } =
+    computeMenuStats(menuItems);
 
   return (
     <View style={styles.screen}>
       <ScreenHeader
         title="Menu Statistics"
-        subtitle="Christoffel's Kitchen"
+        subtitle={RESTAURANT_NAME}
         onBack={() => navigation.goBack()}
       />
 
@@ -26,43 +33,38 @@ export default function MenuStatisticsScreen({ navigation, menuItems }) {
           icon="stats-chart-outline"
           title="No statistics yet"
           message="Add some dishes to the menu and their totals and averages will show up here."
+          actionLabel="Add a dish"
+          onAction={() => navigation.navigate('AddMenuItem')}
         />
       ) : (
-        <ScrollView
-          style={styles.body}
-          contentContainerStyle={styles.bodyContent}
-        >
+        <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent}>
           <View style={styles.summaryRow}>
             <SummaryTile label="Total dishes" value={String(totalItems)} />
-            <SummaryTile
-              label="Average price"
-              value={formatPrice(averagePrice)}
-            />
+            <SummaryTile label="Average price" value={formatPrice(averagePrice)} />
           </View>
 
-          <Text style={styles.sectionTitle}>By course</Text>
-          {byCourse.map((row) => {
-            const courseColors = getCourseColors(row.course);
-            return (
-              <View key={row.course} style={styles.courseRow}>
-                <View
-                  style={[styles.tag, { backgroundColor: courseColors.bg }]}
-                >
-                  <Text style={[styles.tagText, { color: courseColors.text }]}>
-                    {row.course}
-                  </Text>
-                </View>
+          <Text style={styles.sectionTitle}>Dishes per course</Text>
+          {byCourse.map((row) => (
+            <View key={row.course} style={styles.courseRow}>
+              <View style={styles.courseTopRow}>
+                <CourseTag course={row.course} />
                 <View style={styles.courseNumbers}>
                   <Text style={styles.courseCount}>
                     {row.count} {row.count === 1 ? 'dish' : 'dishes'}
                   </Text>
                   <Text style={styles.courseAverage}>
-                    {row.count > 0 ? `avg ${formatPrice(row.averagePrice)}` : '—'}
+                    {row.count > 0 ? `avg ${formatPrice(row.averagePrice)}` : 'No dishes yet'}
                   </Text>
                 </View>
               </View>
-            );
-          })}
+              <ShareBar percent={row.share} color={getCourseColors(row.course).text} />
+              <Text style={styles.shareLabel}>{row.share}% of the menu</Text>
+            </View>
+          ))}
+
+          <Text style={styles.sectionTitle}>Price range</Text>
+          <PriceHighlight label="Most expensive" item={mostExpensiveItem} />
+          <PriceHighlight label="Least expensive" item={cheapestItem} />
         </ScrollView>
       )}
     </View>
@@ -79,6 +81,31 @@ function SummaryTile({ label, value }) {
   );
 }
 
+// Thin horizontal bar filled to `percent`, used to show how much of the
+// menu each course makes up.
+function ShareBar({ percent, color }) {
+  return (
+    <View style={styles.barTrack}>
+      <View style={[styles.barFill, { width: `${percent}%`, backgroundColor: color }]} />
+    </View>
+  );
+}
+
+// A row naming one dish and its price, e.g. "Most expensive - Ribeye".
+function PriceHighlight({ label, item }) {
+  return (
+    <View style={styles.highlightRow}>
+      <View style={styles.highlightText}>
+        <Text style={styles.highlightLabel}>{label}</Text>
+        <Text style={styles.highlightName} numberOfLines={1}>
+          {item.name}
+        </Text>
+      </View>
+      <Text style={styles.highlightPrice}>{formatPrice(item.price)}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -89,6 +116,7 @@ const styles = StyleSheet.create({
   },
   bodyContent: {
     padding: spacing.lg,
+    paddingBottom: spacing.xl * 2,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -121,25 +149,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   courseRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
+    padding: spacing.md,
     marginBottom: spacing.sm,
   },
-  tag: {
-    borderRadius: radius.pill,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  tagText: {
-    fontSize: 11,
-    fontWeight: '700',
+  courseTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   courseNumbers: {
     alignItems: 'flex-end',
@@ -153,5 +173,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textGrey,
     marginTop: 2,
+  },
+  barTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.background,
+    marginTop: spacing.sm,
+    overflow: 'hidden',
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  shareLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
+  highlightRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  highlightText: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  highlightLabel: {
+    fontSize: 11,
+    color: colors.textGrey,
+  },
+  highlightName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textDark,
+    marginTop: 2,
+  },
+  highlightPrice: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: colors.primary,
   },
 });

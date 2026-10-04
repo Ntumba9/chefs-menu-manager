@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    color: '#BFD4C8',
+    color: colors.onPrimaryMuted,
     fontSize: 12,
     marginTop: 2,
   },

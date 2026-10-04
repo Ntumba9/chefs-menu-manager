@@ -1,17 +1,15 @@
 import React, { useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import CourseSelector from './CourseSelector';
+import AppButton from './AppButton';
 import { colors, spacing, radius } from '../theme/theme';
-
-// Matches a positive number with up to 2 decimal places, e.g. 145 or
-// 145.50. Used to validate the Price field.
-const PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
+import {
+  validateMenuItem,
+  normalisePrice,
+  NAME_MAX_LENGTH,
+  DESCRIPTION_MAX_LENGTH,
+} from '../utils/menuValidation';
+import { showMessage } from '../utils/feedback';
 
 const EMPTY_VALUES = { name: '', description: '', course: null, price: '' };
 
@@ -19,98 +17,125 @@ const EMPTY_VALUES = { name: '', description: '', course: null, price: '' };
 // this same component, so the chef learns one layout and one set of
 // validation rules whether creating or changing a dish (Final PoE -
 // "reusable components", "consistency and standards").
+//
+// Props:
+//   initialValues - the dish being edited (omit when adding)
+//   existingItems - the current menu, used to stop duplicate names
+//   submitLabel   - text on the save button
+//   onSubmit      - called with clean { name, description, course, price }
+//   onCancel      - called when the chef taps Cancel
 export default function MenuItemForm({
   initialValues,
+  existingItems = [],
   submitLabel,
   onSubmit,
   onCancel,
 }) {
   const startingValues = { ...EMPTY_VALUES, ...initialValues };
+  const isEditing = Boolean(initialValues?.id);
 
-  const [name, setName] = useState(startingValues.name);
-  const [description, setDescription] = useState(startingValues.description);
-  const [course, setCourse] = useState(startingValues.course);
-  const [price, setPrice] = useState(
-    startingValues.price === '' ? '' : String(startingValues.price)
-  );
+  const [values, setValues] = useState({
+    name: startingValues.name,
+    description: startingValues.description,
+    course: startingValues.course,
+    price: startingValues.price === '' ? '' : Number(startingValues.price).toFixed(2),
+  });
   const [errors, setErrors] = useState({});
 
   const descriptionRef = useRef(null);
   const priceRef = useRef(null);
 
-  function validate() {
-    const nextErrors = {};
+  // Updates one field and clears its error message straight away, so the
+  // red warning disappears as soon as the chef starts fixing it.
+  function updateField(field, value) {
+    setValues((previous) => ({ ...previous, [field]: value }));
+    if (errors[field]) {
+      setErrors((previous) => ({ ...previous, [field]: undefined }));
+    }
+  }
 
-    if (!name.trim()) {
-      nextErrors.name = 'Please enter a dish name.';
-    }
-    if (!description.trim()) {
-      nextErrors.description = 'Please enter a short description.';
-    }
-    if (!course) {
-      nextErrors.course = 'Please select a course.';
-    }
-    if (!price.trim()) {
-      nextErrors.price = 'Please enter a price.';
-    } else if (!PRICE_PATTERN.test(price.trim())) {
-      nextErrors.price = 'Price must be a valid number, e.g. 145.00.';
-    } else if (Number(price) <= 0) {
-      nextErrors.price = 'Price must be greater than zero.';
-    }
-
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+  function hasChanges(cleanValues) {
+    return (
+      cleanValues.name !== startingValues.name ||
+      cleanValues.description !== startingValues.description ||
+      cleanValues.course !== startingValues.course ||
+      cleanValues.price !== Number(startingValues.price)
+    );
   }
 
   function handleSubmit() {
-    if (!validate()) {
+    const nextErrors = validateMenuItem(values, existingItems, initialValues?.id);
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      showMessage(
+        'Please check the form',
+        'Some details are missing or invalid. Fix the fields marked in red and try again.'
+      );
       return;
     }
 
-    onSubmit({
-      name: name.trim(),
-      description: description.trim(),
-      course,
-      price: parseFloat(price),
-    });
+    const cleanValues = {
+      name: values.name.trim(),
+      description: values.description.trim(),
+      course: values.course,
+      price: parseFloat(normalisePrice(values.price)),
+    };
+
+    if (isEditing && !hasChanges(cleanValues)) {
+      showMessage('No changes to save', 'You have not changed any details of this dish yet.');
+      return;
+    }
+
+    onSubmit(cleanValues);
   }
 
   return (
     <View>
-      <Text style={styles.label}>Dish Name</Text>
+      <FieldLabel text="Dish Name" />
       <TextInput
         style={[styles.input, errors.name && styles.inputError]}
         placeholder="e.g. Grilled Sirloin"
         placeholderTextColor={colors.textMuted}
-        value={name}
-        onChangeText={setName}
+        value={values.name}
+        onChangeText={(text) => updateField('name', text)}
+        maxLength={NAME_MAX_LENGTH}
+        autoCapitalize="words"
         returnKeyType="next"
         onSubmitEditing={() => descriptionRef.current?.focus()}
         blurOnSubmit={false}
+        accessibilityLabel="Dish name"
       />
-      {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+      <FieldError message={errors.name} />
 
-      <Text style={styles.label}>Description</Text>
+      <FieldLabel
+        text="Description"
+        hint={`${values.description.length}/${DESCRIPTION_MAX_LENGTH}`}
+      />
       <TextInput
         ref={descriptionRef}
         style={[styles.input, styles.multiline, errors.description && styles.inputError]}
         placeholder="Short description of the dish..."
         placeholderTextColor={colors.textMuted}
-        value={description}
-        onChangeText={setDescription}
+        value={values.description}
+        onChangeText={(text) => updateField('description', text)}
+        maxLength={DESCRIPTION_MAX_LENGTH}
         multiline
         numberOfLines={3}
         returnKeyType="next"
         onSubmitEditing={() => priceRef.current?.focus()}
+        accessibilityLabel="Dish description"
       />
-      {errors.description ? (
-        <Text style={styles.errorText}>{errors.description}</Text>
-      ) : null}
+      <FieldError message={errors.description} />
 
-      <Text style={styles.label}>Course</Text>
-      <CourseSelector selected={course} onSelect={setCourse} error={errors.course} />
+      <FieldLabel text="Course" />
+      <CourseSelector
+        selected={values.course}
+        onSelect={(course) => updateField('course', course)}
+        error={errors.course}
+      />
 
-      <Text style={styles.label}>Price</Text>
+      <FieldLabel text="Price" />
       <View style={[styles.priceRow, errors.price && styles.inputError]}>
         <Text style={styles.priceCurrency}>R</Text>
         <TextInput
@@ -118,40 +143,53 @@ export default function MenuItemForm({
           style={styles.priceInput}
           placeholder="145.00"
           placeholderTextColor={colors.textMuted}
-          value={price}
-          onChangeText={setPrice}
+          value={values.price}
+          onChangeText={(text) => updateField('price', text)}
           keyboardType="decimal-pad"
           returnKeyType="done"
+          onSubmitEditing={handleSubmit}
+          accessibilityLabel="Dish price in rand"
         />
       </View>
-      {errors.price ? <Text style={styles.errorText}>{errors.price}</Text> : null}
+      <FieldError message={errors.price} />
 
-      <TouchableOpacity
-        style={styles.submitButton}
-        onPress={handleSubmit}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.submitButtonText}>{submitLabel}</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.cancelButton}
-        onPress={onCancel}
-        activeOpacity={0.6}
-      >
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </TouchableOpacity>
+      <AppButton title={submitLabel} onPress={handleSubmit} style={styles.submitButton} />
+      <AppButton title="Cancel" onPress={onCancel} variant="text" />
     </View>
   );
 }
 
+// Field title, with an optional hint on the right (e.g. a character count).
+function FieldLabel({ text, hint }) {
+  return (
+    <View style={styles.labelRow}>
+      <Text style={styles.label}>{text}</Text>
+      {hint ? <Text style={styles.labelHint}>{hint}</Text> : null}
+    </View>
+  );
+}
+
+// Red message shown under a field when its value is invalid.
+function FieldError({ message }) {
+  return message ? <Text style={styles.errorText}>{message}</Text> : null;
+}
+
 const styles = StyleSheet.create({
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: spacing.xs,
+    marginTop: spacing.md,
+  },
   label: {
     fontSize: 13,
     fontWeight: '600',
     color: colors.textDark,
-    marginBottom: spacing.xs,
-    marginTop: spacing.md,
+  },
+  labelHint: {
+    fontSize: 11,
+    color: colors.textMuted,
   },
   input: {
     backgroundColor: colors.card,
@@ -197,29 +235,6 @@ const styles = StyleSheet.create({
     color: colors.textDark,
   },
   submitButton: {
-    backgroundColor: colors.accent,
-    borderRadius: radius.md,
-    paddingVertical: 14,
-    alignItems: 'center',
     marginTop: spacing.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  submitButtonText: {
-    color: colors.white,
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  cancelButton: {
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  cancelButtonText: {
-    color: colors.textGrey,
-    fontSize: 13,
-    fontWeight: '600',
   },
 });

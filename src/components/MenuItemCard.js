@@ -1,15 +1,14 @@
 import React from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, getCourseColors } from '../theme/theme';
+import CourseTag from './CourseTag';
+import { colors, spacing, radius } from '../theme/theme';
 import { formatPrice } from '../utils/menuStats';
 
 // Renders a single menu item row. Tapping the card opens it for editing
 // or deleting (Final PoE - "Manage Menu Items"), so the whole card is a
 // touchable and a chevron hints that it leads somewhere.
 export default function MenuItemCard({ item, onPress }) {
-  const courseColors = getCourseColors(item.course);
-
   return (
     <TouchableOpacity
       style={styles.card}
@@ -28,11 +27,7 @@ export default function MenuItemCard({ item, onPress }) {
         </Text>
       ) : null}
       <View style={styles.cardBottomRow}>
-        <View style={[styles.tag, { backgroundColor: courseColors.bg }]}>
-          <Text style={[styles.tagText, { color: courseColors.text }]}>
-            {item.course}
-          </Text>
-        </View>
+        <CourseTag course={item.course} />
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </View>
     </TouchableOpacity>
@@ -78,15 +73,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: spacing.sm,
-  },
-  tag: {
-    alignSelf: 'flex-start',
-    borderRadius: radius.pill,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-  },
-  tagText: {
-    fontSize: 11,
-    fontWeight: '700',
   },
 });

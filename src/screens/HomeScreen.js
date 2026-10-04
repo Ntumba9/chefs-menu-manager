@@ -4,11 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ScreenHeader from '../components/ScreenHeader';
 import SearchBar from '../components/SearchBar';
-import CourseFilterBar, { ALL_COURSES } from '../components/CourseFilterBar';
+import CourseFilterBar from '../components/CourseFilterBar';
 import MenuItemCard from '../components/MenuItemCard';
 import EmptyState from '../components/EmptyState';
-import { colors, spacing, radius } from '../theme/theme';
+import { colors, spacing, radius, RESTAURANT_NAME } from '../theme/theme';
 import { computeMenuStats, formatPrice } from '../utils/menuStats';
+import { ALL_COURSES, filterMenuItems, countByCourse } from '../utils/menuFilters';
 
 // The chef's full menu. Shows every dish, lets the chef search by name
 // and filter by course (Final PoE - "Search and Filter"), summarises the
@@ -23,30 +24,34 @@ export default function HomeScreen({ navigation, menuItems }) {
   const { totalItems, averagePrice } = computeMenuStats(menuItems);
 
   // Apply the search text and the course filter together.
-  const visibleItems = useMemo(() => {
-    const query = searchText.trim().toLowerCase();
-
-    return menuItems.filter((item) => {
-      const matchesCourse =
-        courseFilter === ALL_COURSES || item.course === courseFilter;
-      const matchesSearch =
-        query === '' || item.name.toLowerCase().includes(query);
-      return matchesCourse && matchesSearch;
-    });
-  }, [menuItems, searchText, courseFilter]);
+  const visibleItems = useMemo(
+    () => filterMenuItems(menuItems, { searchText, course: courseFilter }),
+    [menuItems, searchText, courseFilter]
+  );
+  const courseCounts = useMemo(
+    () => countByCourse(menuItems, searchText),
+    [menuItems, searchText]
+  );
 
   const hasAnyItems = totalItems > 0;
   const isFiltering = searchText.trim() !== '' || courseFilter !== ALL_COURSES;
 
+  // Only the id is passed; the Edit screen looks the dish up itself so
+  // it always works with the latest version of it.
   function openEditScreen(item) {
-    navigation.navigate('EditMenuItem', { item });
+    navigation.navigate('EditMenuItem', { itemId: item.id });
+  }
+
+  function clearSearchAndFilters() {
+    setSearchText('');
+    setCourseFilter(ALL_COURSES);
   }
 
   return (
     <View style={styles.screen}>
       <ScreenHeader
         title="Menu Manager"
-        subtitle="Christoffel's Kitchen"
+        subtitle={RESTAURANT_NAME}
         onBack={() => navigation.goBack()}
         rightAction={{
           icon: 'stats-chart',
@@ -74,7 +79,14 @@ export default function HomeScreen({ navigation, menuItems }) {
               onChangeText={setSearchText}
               placeholder="Search dishes by name"
             />
-            <CourseFilterBar selected={courseFilter} onSelect={setCourseFilter} />
+            <CourseFilterBar
+              selected={courseFilter}
+              onSelect={setCourseFilter}
+              counts={courseCounts}
+            />
+            {visibleItems.length > 0 ? (
+              <Text style={styles.hint}>Tap a dish to edit or delete it.</Text>
+            ) : null}
           </>
         ) : null}
 
@@ -84,7 +96,9 @@ export default function HomeScreen({ navigation, menuItems }) {
           <EmptyState
             icon="search-outline"
             title="No dishes match"
-            message="Try a different name or course filter."
+            message={buildNoMatchMessage(searchText, courseFilter)}
+            actionLabel="Clear search & filters"
+            onAction={clearSearchAndFilters}
           />
         ) : (
           <FlatList
@@ -116,6 +130,15 @@ export default function HomeScreen({ navigation, menuItems }) {
   );
 }
 
+// Explains exactly what was searched for when nothing matched, e.g.
+// No dishes named "soup" in Dessert.
+function buildNoMatchMessage(searchText, courseFilter) {
+  const query = searchText.trim();
+  const namePart = query ? ` named "${query}"` : '';
+  const coursePart = courseFilter !== ALL_COURSES ? ` in ${courseFilter}` : '';
+  return `No dishes${namePart}${coursePart}. Try a different name or course.`;
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -141,8 +164,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.textGrey,
   },
+  hint: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+  },
   listContent: {
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xl * 2,
   },
   fab: {
