@@ -287,22 +287,22 @@ starts empty each time the app is opened.
 
 # References
 
-Expo. n.d.a. *Create a project*. [Online]. Available at: https://docs.expo.dev/get-started/create-a-project/ [Accessed 5 October 2026].
+Expo. n.d.a. *Create a project*. [Online]. Available at: https://docs.expo.dev/get-started/create-a-project/ [Accessed 20 September 2026].
 
-Expo. n.d.b. *Develop websites with Expo*. [Online]. Available at: https://docs.expo.dev/workflow/web/ [Accessed 5 October 2026].
+Expo. n.d.b. *Develop websites with Expo*. [Online]. Available at: https://docs.expo.dev/workflow/web/ [Accessed 20 September 2026].
 
-Expo. n.d.c. *Expo Vector Icons*. [Online]. Available at: https://docs.expo.dev/guides/icons/ [Accessed 5 October 2026].
+Expo. n.d.c. *Expo Vector Icons*. [Online]. Available at: https://docs.expo.dev/guides/icons/ [Accessed 20 September 2026].
 
-Expo. n.d.d. *react-native-safe-area-context*. [Online]. Available at: https://docs.expo.dev/versions/latest/sdk/safe-area-context/ [Accessed 5 October 2026].
+Expo. n.d.d. *react-native-safe-area-context*. [Online]. Available at: https://docs.expo.dev/versions/latest/sdk/safe-area-context/ [Accessed 20 September 2026].
 
-Ionic. n.d. *Ionicons: Premium Open Source Icon Pack for Ionic Framework*. [Online]. Available at: https://ionic.io/ionicons [Accessed 5 October 2026].
+Ionic. n.d. *Ionicons: Premium Open Source Icon Pack for Ionic Framework*. [Online]. Available at: https://ionic.io/ionicons [Accessed 20 September 2026].
 
-Meta Platforms, Inc. n.d.a. *Built-in React Hooks*. [Online]. Available at: https://react.dev/reference/react/hooks [Accessed 5 October 2026].
+Meta Platforms, Inc. n.d.a. *Built-in React Hooks*. [Online]. Available at: https://react.dev/reference/react/hooks [Accessed 20 September 2026].
 
-Meta Platforms, Inc. n.d.b. *FlatList*. [Online]. Available at: https://reactnative.dev/docs/flatlist [Accessed 5 October 2026].
+Meta Platforms, Inc. n.d.b. *FlatList*. [Online]. Available at: https://reactnative.dev/docs/flatlist [Accessed 20 September 2026].
 
-Meta Platforms, Inc. n.d.c. *KeyboardAvoidingView*. [Online]. Available at: https://reactnative.dev/docs/keyboardavoidingview [Accessed 5 October 2026].
+Meta Platforms, Inc. n.d.c. *KeyboardAvoidingView*. [Online]. Available at: https://reactnative.dev/docs/keyboardavoidingview [Accessed 20 September 2026].
 
-Meta Platforms, Inc. n.d.d. *Reusing Logic with Custom Hooks*. [Online]. Available at: https://react.dev/learn/reusing-logic-with-custom-hooks [Accessed 5 October 2026].
+Meta Platforms, Inc. n.d.d. *Reusing Logic with Custom Hooks*. [Online]. Available at: https://react.dev/learn/reusing-logic-with-custom-hooks [Accessed 20 September 2026].
 
-React Navigation. n.d. *Native Stack Navigator*. [Online]. Available at: https://reactnavigation.org/docs/native-stack-navigator [Accessed 5 October 2026].
+React Navigation. n.d. *Native Stack Navigator*. [Online]. Available at: https://reactnavigation.org/docs/native-stack-navigator [Accessed 20 September 2026].
