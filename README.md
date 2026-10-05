@@ -285,7 +285,28 @@ starts empty each time the app is opened.
 
 ---
 
+# Declaration of AI use
+
+I used Claude, an AI assistant (Anthropic, 2026), while completing this
+Final PoE. I built the original Part 2 application myself. For this
+submission, I used Claude to:
+
+- review my application against the PoE requirements and rubric
+- suggest and implement improvements: bug fixes, extra validation,
+  search and filter enhancements, additional menu statistics, and
+  refactoring into reusable components and utility functions
+- draft the README change log, the references and the submission
+  document
+
+I reviewed and tested all of the changes, upgraded the project to Expo
+SDK 57, and recorded the video demonstration myself. I understand the
+code in this submission and can explain how it works.
+
+---
+
 # References
+
+Anthropic. 2026. *Claude (Opus 5.5)* [Large language model]. Available at: https://claude.ai [Accessed 5 October 2026].
 
 Expo. n.d.a. *Create a project*. [Online]. Available at: https://docs.expo.dev/get-started/create-a-project/ [Accessed 20 September 2026].
 
