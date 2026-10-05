@@ -10,7 +10,7 @@ improvements.
 
 ## Video demonstration
 
-▶️ **[Watch the app demo on YouTube](https://youtu.be/Yn-3MSb2JeU)**: https://youtu.be/Yn-3MSb2JeU
+▶️ **[Watch the app demo on YouTube](https://youtu.be/Oq46crFxqYI)**: https://youtu.be/Oq46crFxqYI
 
 ## Features
 
