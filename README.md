@@ -21,7 +21,8 @@ improvements.
 
 ### Menu list (Home)
 
-- Scrollable list of every dish, with course labels in colour.
+- Scrollable list of every dish, with course labels in colour, built
+  with React Native's `FlatList` component (Meta Platforms, Inc., n.d.b).
 - The list header shows the total number of dishes and the average
   price, or "N of M shown" while a search or filter is active.
 - **Search** by dish name. Results update live as you type, the search
@@ -80,19 +81,26 @@ improvements.
 - Shared components for buttons, chips, course tags, headers and empty
   states, so every screen looks the same.
 - Safe-area aware: the header and floating button stay clear of notches
-  and the home indicator.
-- Device-native icons (`@expo/vector-icons`).
+  and the home indicator, using `react-native-safe-area-context`
+  (Expo, n.d.d).
+- Icons come from `@expo/vector-icons` (Expo, n.d.c), using the Ionicons
+  icon set (Ionic, n.d.).
 - Keyboard-friendly forms: "next" moves between fields, "done" on the
-  price field submits, and the screen scrolls clear of the keyboard.
+  price field submits, and the screen scrolls clear of the keyboard using
+  React Native's `KeyboardAvoidingView` (Meta Platforms, Inc., n.d.c).
 - Accessibility labels on every button and input.
 - Messages and confirmations also work in the web build (React Native's
   `Alert` does nothing on web).
 
 ## Tech stack
 
-- [Expo](https://expo.dev) SDK 57 (React Native 0.86). Open it with an
-  up-to-date Expo Go app from the App Store / Play Store.
-- [React Navigation](https://reactnavigation.org) 7 (native stack navigator)
+- Expo SDK 57 (React Native 0.86). The project was set up and is run
+  with Expo and the Expo Go app (Expo, n.d.a). Open it with an up-to-date
+  Expo Go app from the App Store / Play Store.
+- React Navigation 7, using the native stack navigator to move between
+  screens (React Navigation, n.d.).
+- React hooks (`useState`, `useMemo`, `useCallback`, `useRef`) for state
+  and performance (Meta Platforms, Inc., n.d.a).
 
 ## Project structure
 
@@ -149,7 +157,8 @@ src/
 npx expo start --web
 ```
 
-The app opens in your browser at `http://localhost:8081`. For a phone-like
+Expo runs the app in the browser through React Native for Web
+(Expo, n.d.b). The app opens in your browser at `http://localhost:8081`. For a phone-like
 view, open the browser's developer tools and turn on device / mobile view
 (F12, then Ctrl+Shift+M in Chrome or Edge).
 
@@ -213,7 +222,8 @@ starts empty each time the app is opened.
 - **`useMenuItems` hook.** Menu state and the add / update / delete /
   find-by-id logic moved out of `App.js` into `src/hooks/useMenuItems.js`.
   Every screen changes the menu through this one place, so all views stay
-  in sync.
+  in sync. This follows the custom hook approach for sharing stateful
+  logic described in the React documentation (Meta Platforms, Inc., n.d.d).
 - **`MenuItemForm` component.** The dish form was moved out of
   `AddMenuItemScreen` into a shared component. Its state is now a single
   `values` object, with small `FieldLabel` / `FieldError` helpers.
@@ -264,10 +274,35 @@ starts empty each time the app is opened.
   Native 0.81) to SDK 57 (React Native 0.86, React 19.2) so it opens in
   the current Expo Go app, which only supports the latest SDK on iPhone.
   React Navigation moved from v6 (no longer supported) to v7; the app's
-  navigation code did not need to change.
+  navigation code did not need to change. The `expo-status-bar` config
+  plugin was added back to `app.json`, where it is valid in SDK 57.
 - **Web support.** Added `react-dom` and `react-native-web` so the app
   also runs in a browser with `npx expo start --web`. Messages and
   confirmations use browser dialogs there (see `utils/feedback.js`).
 - **Naming and comments.** Handler names are consistent (`handleAdd`,
   `handleUpdate`, `handleDelete`, `clearSearchAndFilters`), and every
   file starts with a short comment explaining why it exists.
+
+---
+
+# References
+
+Expo. n.d.a. *Create a project*. [Online]. Available at: https://docs.expo.dev/get-started/create-a-project/ [Accessed 5 October 2026].
+
+Expo. n.d.b. *Develop websites with Expo*. [Online]. Available at: https://docs.expo.dev/workflow/web/ [Accessed 5 October 2026].
+
+Expo. n.d.c. *Expo Vector Icons*. [Online]. Available at: https://docs.expo.dev/guides/icons/ [Accessed 5 October 2026].
+
+Expo. n.d.d. *react-native-safe-area-context*. [Online]. Available at: https://docs.expo.dev/versions/latest/sdk/safe-area-context/ [Accessed 5 October 2026].
+
+Ionic. n.d. *Ionicons: Premium Open Source Icon Pack for Ionic Framework*. [Online]. Available at: https://ionic.io/ionicons [Accessed 5 October 2026].
+
+Meta Platforms, Inc. n.d.a. *Built-in React Hooks*. [Online]. Available at: https://react.dev/reference/react/hooks [Accessed 5 October 2026].
+
+Meta Platforms, Inc. n.d.b. *FlatList*. [Online]. Available at: https://reactnative.dev/docs/flatlist [Accessed 5 October 2026].
+
+Meta Platforms, Inc. n.d.c. *KeyboardAvoidingView*. [Online]. Available at: https://reactnative.dev/docs/keyboardavoidingview [Accessed 5 October 2026].
+
+Meta Platforms, Inc. n.d.d. *Reusing Logic with Custom Hooks*. [Online]. Available at: https://react.dev/learn/reusing-logic-with-custom-hooks [Accessed 5 October 2026].
+
+React Navigation. n.d. *Native Stack Navigator*. [Online]. Available at: https://reactnavigation.org/docs/native-stack-navigator [Accessed 5 October 2026].
