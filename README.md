@@ -8,6 +8,10 @@ the Part 2 app (adding and viewing menu items) and adds menu management,
 search and filtering, menu statistics, and a round of refactoring and UX
 improvements.
 
+## Video demonstration
+
+▶️ **[Watch the app demo on YouTube](https://youtu.be/Yn-3MSb2JeU)**: https://youtu.be/Yn-3MSb2JeU
+
 ## Features
 
 ### Welcome screen
@@ -86,8 +90,9 @@ improvements.
 
 ## Tech stack
 
-- [Expo](https://expo.dev) SDK 54 (React Native 0.81)
-- [React Navigation](https://reactnavigation.org) (native stack navigator)
+- [Expo](https://expo.dev) SDK 57 (React Native 0.86). Open it with an
+  up-to-date Expo Go app from the App Store / Play Store.
+- [React Navigation](https://reactnavigation.org) 7 (native stack navigator)
 
 ## Project structure
 
@@ -249,12 +254,17 @@ starts empty each time the app is opened.
 - **Unique ids.** New items get a timestamp plus a random suffix as
   their id, instead of `Date.now()` alone, which could collide.
 - **Entry point.** Switched from the deprecated `expo/AppEntry.js` to a
-  project `index.js` with `registerRootComponent` (the Expo SDK 54
+  project `index.js` with `registerRootComponent` (the Expo SDK
   default), and removed an invalid `expo-status-bar` entry from the
   `app.json` plugins.
 - **Dependencies.** Added the missing `expo-font` peer dependency
-  required by `@expo/vector-icons` (SDK 54 version). `npx expo-doctor`
-  now passes all checks.
+  required by `@expo/vector-icons`. `npx expo-doctor` now passes all
+  checks.
+- **Upgraded to Expo SDK 57.** The project moved from SDK 54 (React
+  Native 0.81) to SDK 57 (React Native 0.86, React 19.2) so it opens in
+  the current Expo Go app, which only supports the latest SDK on iPhone.
+  React Navigation moved from v6 (no longer supported) to v7; the app's
+  navigation code did not need to change.
 - **Web support.** Added `react-dom` and `react-native-web` so the app
   also runs in a browser with `npx expo start --web`. Messages and
   confirmations use browser dialogs there (see `utils/feedback.js`).
